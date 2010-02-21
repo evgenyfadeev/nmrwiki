@@ -1,0 +1,6 @@
+*.xml
+.htaccess
+google*.html
+inbox
+*.wsgi
+pywiki

@@ -1,0 +1,68 @@
+"makedosyparams - creates the parameters dosytimecubed 	"
+"dosygamma and dosyfrq, and sets them to the values  	"
+"calculated in the calling pulse sequence"
+" N.B. del used by the new family of DOSY pulse 	"
+"sequences (prefixed with D) actually corresponds to 	"
+"the diffusion delay "
+
+"Version by Peter Sandor, 25th October 1999"
+
+exists('dosytimecubed','parameter'):$e
+if $e=0 then
+create('dosytimecubed','real')
+endif
+exists('dosygamma','parameter'):$e
+if $e=0 then
+create('dosygamma','real')
+endif
+exists('dosyfrq','parameter'):$e
+if $e=0 then
+create('dosyfrq','real')
+endif
+
+exists('dosytimecubed','parameter','processed'):$e
+if $e=0 then
+create('dosytimecubed','real','processed') 
+endif
+exists('dosygamma','parameter','processed'):$e
+if $e=0 then
+create('dosygamma','real','processed')
+endif
+exists('dosyfrq','parameter','processed'):$e
+if $e=0 then
+create('dosyfrq','real','processed')
+endif
+
+"Calculate the gamma of the diffusing nucleus		"
+$f=''  $t=''
+$dh1freq = h1freq/100
+if ($dh1freq < 10) then
+	format($dh1freq,1,0):$f
+else
+	format($dh1freq,2,0):$f
+endif
+substr(rftype,1,1):$t
+$nuctab=systemdir+'/nuctables/nuctab'+$f+$t
+"Check to see whether nucleus table exists"
+exists($nuctab,'file'):$ex
+if ($ex > 0.5) then
+	lookup('file',$nuctab,'seek','H1','read'):$base,$found
+else
+	write('error','File '+$nuctab+' not found')
+endif
+
+"now set the parameters to the values calculated in the pulse sequence"
+"in curpar ..."
+dosytimecubed=$1
+dosygamma=267519000.0*$2/$base
+dosyfrq=$2
+
+" ... and in procpar"
+setvalue('dosytimecubed',$1,'processed')
+setvalue('dosygamma',dosygamma,'processed')
+setvalue('dosyfrq',$2,'processed')
+
+flush
+shell('cp '+curexp+'/curpar '+curexp+'/acqfil/procpar')
+shell('cp '+curexp+'/curpar '+curexp+'/procpar')
+flush

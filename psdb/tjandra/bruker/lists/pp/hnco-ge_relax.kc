@@ -1,0 +1,452 @@
+#include "bits.nt"
+
+;hnco-3D to measure Co cross-correlation by doublet intensity
+;written by NT 1/17/97 adapted by AB from hncaX-ge by abx
+;KC, relaxation version
+
+;p1 = 90 deg (10us) 1H pulse @pl1
+;p30 = 90 deg (60us) 1H pulse @pl30
+
+;p7 = 90 deg (50us) 15N pulse @pl7
+;p31 = 90 deg (190us) 15N pulse @pl31
+
+;not used: p3 = selective 90 deg (53.0us) 13CA pulse @pl3
+
+;p4 = selective 180 deg (23.7*2us) 13CA pulse @pl4
+;pl6=120 db to preset shape on C2
+;p6 = 180 deg (191.7us=180deg) 13C pulse @sp1 using sinc1.0
+;p6 = 90 deg (191.7us=90deg) 13C pulse @sp2 using sinc1.0
+
+#define NITRO
+#define C_O
+#define T1
+;#define T1_onN ; must turn off T2
+#define T2    ; must turn off T1_onN
+#define HEAT
+
+define loopcounter NLOOP
+define loopcounter CLOOP
+
+"NLOOP=40" ; 41 original value complex points, consistent with d22
+"CLOOP=50" ; 51 original value, consistent with d0
+"l3=1" ; loop for N+P (l3=1)  and N-P(l3=2) counting
+"l4=0" ; loop for T2 relaxation increment
+"l5=0" ; loop for T1 relaxation increment
+"l6=NLOOP" ; T2 loop for heat compensation
+#ifndef  T1_onN
+"l7=CLOOP" ; T1 loop for heat compensation
+#else
+"l7=NLOOP" ; T1 loop for heat compensation
+#endif
+
+;in22=in24=in25=1/4sw, N dimension
+"in22=140u"
+"in24=140u"
+"in25=140u"
+
+"in0=160u" ; C dimension, 1/4sw
+"in10=160u" ; C dimension, 1/4sw
+
+"d2=2.65m"
+"d5=12.5m-5.405m"
+"d11=50m"
+"d12=10m"
+"d23=4m-p1"
+"d26=p7-p1"
+"d28=p7-p4"
+"d29=0.5*p6-p7"
+"d30=p4*2.0+10u"
+
+"d3=d2-p22"
+"d4=d2-p23"
+"d6=0.25m-p24"
+"d7=0.25m-p25"
+"d13=500u-p7"
+"d14=d13-p1"
+"d17=p7*0.637"
+
+"d22=(l6+1)*in22"; 6.8 original
+;"d22=5.45m"; 6.8 original, 5.45 min
+"d25=d22"
+"d24=d22-5.4m"
+"d9=5.4m-p26"
+
+#ifdef C_O
+;"d0 = in0*0.5 -p6*0.55 -p7 -2.5u"
+;"d0 = in0*0.5 -p6*0.55 -p4 -2.5u"
+"d0=(l7+1)*in0" ; 8.2m original value
+;"d0=6.0m" ; 8.2m original value
+"d10=d0" 
+#else
+"d0 = 2u"
+"d10 = 2u"
+#endif
+
+;Gradient pulses
+"p19=1.0m"
+"p20=2.5m"
+"p21=1.1m"
+"p22=1.0m"
+"p23=1.0m"
+"p24=0.20m"
+"p25=0.0756m"
+"p26=2.694m" ; tune p26 or tune p24/p25, p24+p25 = p26
+"p28=0.7m"
+"p29=1.3m"
+
+1	ze
+	d12 RESET
+	10u
+	1m pl2:H
+	10u
+2	d11 do:N
+3	d12*4.0
+4	d12*4.0
+5	d12*4.0
+6	50u do:N
+7	5u do:C1
+	10u pl4:C1
+	10u pl1:H
+	10u pl7:N 
+	1m LOCK_ON
+#ifdef HEAT
+#ifdef T2
+60      d13
+        (p7*2 ph8):N
+        d13
+        d13
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+	d13
+        (p7*2 ph8):N
+        d14
+        (p1*2 ph4)
+        d14
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d13
+        lo to 60 times l6 ; T2 heat 6msXl6
+#endif
+#ifdef T1
+65      100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+;        100u ;d23
+;        (p1*2 ph3):H
+;        100u ;d23
+;        100u ;d23
+;        (p1*2 ph3):H
+;        100u ;d23
+;        100u ;d23
+;        (p1*2 ph3):H
+;        100u ;d23
+;        100u ;d23
+;        (p1*2 ph3):H
+;        100u ;d23
+        lo to 65 times l7 ; T1 heat, consistent with the later T1 loop
+#endif
+#ifdef T1_onN
+66      100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        100u ;d23
+        (p1*2 ph3):H
+        100u ;d23
+        lo to 66 times l7 ; T1 heat
+#endif
+#endif  ;the end of HEAT
+	d1 
+	1m LOCK_OFF
+;------- start 90-degree on N to get rid of boltzman ---------
+	(p7 ph7):N (p4 ph0):C1
+	2u
+	1.0m
+;------- start 90-degree on hn -----------------------
+	(p1 ph0):H
+	d2
+	(d26 p1*2 ph1):H (p7*2 ph1):N
+	d2
+	(p1 ph2):H
+        4u
+	p21:gp21     ;GRAD (25% on Y)
+	1m
+	(p7 ph7):N
+;-------------- end inept to N ----------------------
+	2.7m
+        (d26 p1*2 ph1):H (p7*2 ph1):N
+	2.7m
+	d17
+;*****  n15 relaxation delay *******
+;begin T2
+70      d13
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d14
+        (p1*2 ph4)
+        d14
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d13
+	d13
+        (p7*2 ph8):N
+	d13
+	d13
+        (p7*2 ph8):N
+	d13
+        d13
+        (p7*2 ph8):N
+        d13
+        lo to 70 times l4
+;end T2, l4X6ms
+        (p7 ph5):N
+        2u
+	p19:gp19 ;GRAD 20% on X
+        1m
+        (p1*2 ph3):H
+        1m              ;kang
+;begin T1
+	1m LOCK_ON      ;kang
+80      d23
+        (p1*2 ph3):H
+        d23
+        d23
+        (p1*2 ph3):H
+        d23
+        d23
+        (p1*2 ph3):H
+        d23
+        d23
+        (p1*2 ph3):H
+        d23
+;        d23
+;        (p1*2 ph3):H
+;        d23
+;        d23
+;        (p1*2 ph3):H
+;        d23
+;        d23
+;        (p1*2 ph3):H
+;        d23
+;        d23
+;        (p1*2 ph3):H
+;        d23
+        lo to 80 times l5
+        (p7 ph6):N
+;end T1, T1 delay 64ms*l5
+	5.4m
+	5u 
+	d5 pl6:C2
+	(p6:sp1 ph0):C2 (d29 p7*2 ph7):N
+	11.496m 	;kang
+	1m LOCK_OFF     ;kang
+	4u
+	(p7 ph7):N
+	2u
+	p28:gp28 ;GRAD 25% on Y and Z
+	400u pl6:C2
+        50u pl30:H
+	50u cpds1:H
+;------------- start CT evolution on CO ---------------------------
+	(p6:sp2 ph10):C2
+	d0 pl4:C1
+	(p7*2 ph7):N (d28 p4*2 ph0):C1
+	d0
+	(p6:sp1 ph10):C2
+	d10
+	(p7*2 ph7):N (d28 p4*2 ph0):C1
+	d10
+;end-----CO--------------------------------------------------------
+	(p6:sp2 ph11):C2
+	2u
+	p29:gp29 ;GRAD 30% on Y
+	1.5m
+;addition to get NH coupled spectra
+        2u ;do:H
+;--------------- start CT evolution on N -------------------
+	(p7 ph7):N
+	4u 
+	4u pl4:C1
+	d22
+	(p4*2 ph0):C1
+	8u pl6:C2
+	d22
+	(p6:sp1 ph0):C2 (d29 p7*2 ph7):N  ;set back to ph7!!!!!!!!!!!!!
+	8u pl4:C1
+	d25 pl6:C2
+	(p4*2 ph0):C1
+	d24
+if "l3==1" goto 27
+26	8u do:H		;comment out "do:H" to get NH coupled
+	p26:gp27 ;GRAD 30% on Z 
+	goto 28
+27	8u do:H		;comment out "do:H" to get NH coupled
+	p26:gp26 ;GRAD -30% on Z 
+28	d9 pl1:H
+	(p7 ph9):N (d26 p1 ph0):H
+;--------- end CT evolution on N --------------------
+	2u
+	p22:gp22 ;GRAD 30% on X 
+	d3
+	(d26 p1*2 ph0):H (p7*2 ph7):N
+	2u
+	p22:gp22 ;GRAD 30% on X 
+	d3
+	(p1 ph1):H (p7 ph1):N
+	2u
+	p23:gp23 ;GRAD 30% on Y 
+	d4
+	(d26 p1*2 ph0):H (p7*2 ph7):N
+	2u
+	p23:gp23 ;GRAD 30% on Y 
+	d4
+	(d26 p1 ph0):H
+	4u
+	p24:gp24 ;GRAD 30% on Z
+	d6
+	(p1*2 ph0):H
+	2u
+	p25:gp25 ;GRAD -30% on Z
+	d7 pl31:N
+	(2u ph0)
+	go=2 ph31 cpd2:N
+        10u do:N
+	1m LOCK_ON
+	d11 wr #0 if #0 zd
+#ifdef NITRO
+d12*0.25 ip9
+d12*0.5 ip9
+d12*0.25 iu3
+lo to 3 times 2
+d12*0.5 ru3
+d12 dd22
+d12 id24
+d12 id25
+#ifdef T2
+d12*0.25 iu4
+d12*0.25 du6
+#else
+d12*0.5
+#endif ;T2
+#ifdef T1_onN
+d12*0.25 iu5
+d12*0.25 du7
+#else
+d12*0.5
+#endif ;T1_onN
+lo to 4 times NLOOP
+d12*0.50 rd22
+d12*0.25 rd24
+d12*0.25 rd25
+d12*0.25 ru4
+d12*0.25 ru6
+#ifdef T1_onN
+d12*0.25 ru5
+d12*0.25 ru7
+#else
+d12*0.5
+#endif ;T1_onN
+#endif ;NITRO
+#ifdef C_O
+d12 ip10
+d12
+lo to 5 times 2
+;d12 id0
+d12*0.5 dd0
+d12*0.5 id10
+d12 ip31
+d12 ip31
+#ifdef T1
+d12*0.5 iu5
+d12*0.5 du7
+#else
+d12
+#endif
+lo to 7 times CLOOP
+#endif 
+d12 
+d12 do:C1
+d12 do:N
+exit	
+	
+ph0=0
+ph1=1
+ph2=1 3
+ph3=0 0 0 0 2 2 2 2
+ph4=1
+ph5=1
+ph6=3
+ph7=0
+ph8=0 0 0 0 2 2 2 2
+ph9=2
+ph10=0 0 2 2
+ph11=0 0 0 0 2 2 2 2
+ph31=0 2 2 0 2 0 0 2

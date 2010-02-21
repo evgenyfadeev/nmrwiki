@@ -1,0 +1,49 @@
+;Gradnt.incl  -  include file for Gradient Spectroscopy
+;avance-version
+;version 94/06/27
+
+#define H f1
+#define N f2
+#define D f3
+#define C1 f4
+#define C2 f5
+
+#define GRAD15(ampl) p15:ngrad:c34
+#define GRAD16(ampl) p16:ngrad:c34
+#define GRAD17(ampl) p17:ngrad:c34
+#define GRAD18(ampl) p18:ngrad:c34
+#define GRAD19(ampl) p19:ngrad:c34
+
+
+#define RESET setnmr2^0 setnmr0^32 setnmr0^33 setnmr0^34 setnmr8^4
+
+#define blank setnmr2|0 setnmr0|32 setnmr0|33 setnmr0|34
+#define unblank setnmr2^0 setnmr0^32 setnmr0^33 setnmr0^34
+
+#define LOCK_OFF blank
+#define LOCK_ON unblank
+
+
+#define BLKGRAD  setnmr2^0 setnmr0^32 setnmr0^33 setnmr0^34
+
+#define UNBLKGRAD setnmr2|0 setnmr0|32 setnmr0|33 setnmr0|34
+
+#define BLKGRAMPX setnmr0^32
+#define BLKGRAMPY setnmr0^33
+#define BLKGRAMPZ setnmr0^34
+
+#define UNBLKGRAMP setnmr0|32 setnmr0|33 setnmr0|34
+
+#define LOCKDEC_ON setnmr8|8
+#define LOCKDEC_OFF setnmr8^8
+
+#define DEUT_ON setnmr8|4
+#define DEUT_OFF setnmr8^4
+
+#define PHASE_2( A )    A A
+#define PHASE_4( A )    A A A A
+#define PHASE_8( A )    A A A A A A A A
+#define PHASE_16( A )   A A A A A A A A A A A A A A A A
+#define PHASE_32( A )   A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A A
+
+

@@ -1,0 +1,19 @@
+NMR Wiki is a free online resource for the Magnetic Resonance Reseach community.
+
+If you would like to improve NMR Wiki - please feel free to fork this repository and add/fix some code.
+
+Other easy ways to contribute to NMR Wiki are:
+* send something by email (attachments accepted) to:
+
+  inbox@nmrwiki.org
+
+* edit the wiki at http://nmrwiki.org
+  - no permissions required
+
+* ask and answer questions about NMR/EPR/MRI at 
+   http://qa.nmrwiki.orb
+
+This is a repository of NMR Wiki that will eventually include:
+* entire code for the site (/wiki)
+* original files of the pulse sequence database (/psdb)
+

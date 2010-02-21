@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /wiki/index.php?diff=
+Disallow: /wiki/index.php?oldid=
+Disallow: /wiki/index.php?title=MediaWiki
+Disallow: /wiki/index.php?title=NMRWIKI
+Disallow: /wiki/index.php?title=Template
+Disallow: /wiki/index.php?title=Special:Random
+Disallow: /wiki/index.php?title=Special%3ARandom
+Disallow: /wiki/index.php?title=Special:Search
+Disallow: /wiki/index.php?title=Special%3ASearch

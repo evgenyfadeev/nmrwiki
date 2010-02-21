@@ -1,0 +1,76 @@
+" setup_dosy:  initialise gradient calibration, and set up"
+" gradient strengths in equal increments of gradient squared"
+
+" Version by Peter Sandor, 25th October 99"
+" Modified to allow phase sensitive 3D DOSY GAM 31xii03 "
+" Remove setting of array variable "
+
+" HB 2x95"
+" Automatic gradient strengths selections for DOSY exponential fit"
+" HB 3ii97 modified to facilitate the setting up of ps_DDQFC "
+" HB 16v97 modified to add the DAC_to_G variable "
+" Don't set DAC-to_G in the processed tree GAM 8xii98"
+
+" First copy the value of the global parameter gcal into "
+" the experimental parameter DAC_to_G "
+
+exists('DAC_to_G','parameter'):$exist
+IF $exist = 0 THEN
+	echo('DAC_to_G had to be created, please verify its value')
+	create('DAC_to_G','real','processed')
+	create('DAC_to_G','real','current')
+ENDIF
+
+if (probe='') then $pr=0 
+   else $pr=1 endif
+exists(userdir+'/probes/'+probe,'file'):$e
+if $e>0 then
+  $file  = userdir + '/probes/'+probe+'/'+probe
+else
+  exists(systemdir+'/probes/'+probe,'file'):$e
+  if ($e > 0) then
+     $file  = systemdir + '/probes/'+probe+'/'+probe
+  endif
+endif
+if (($e>0)and($pr<>0)) then
+   getparam('gcal','Probe'):DAC_to_G
+else
+setvalue('DAC_to_G',gcal,'current')
+endif
+
+" Now calculate the gzlvl increments "
+$onegzvalue = 0
+gzlvl1 = 0
+input('Enter the number of increments  :  '):$incs
+IF $incs = 1 THEN
+	input('Enter the value of gzlvl1 :  '):gzlvl1
+	$onegzvalue = 1
+ELSE
+	input('Enter the lowest gradient strength (or 0 for automatic selection) :  '):$min
+	input('Enter the highest gradient strength  :  '):$max
+	IF $min = 0 THEN
+		$sq_step = $max*$max/$incs
+		$i=1
+		REPEAT
+			$new_val = $i*$sq_step
+			$step = sqrt($new_val)
+			format($step,6,0):gzlvl1[$i]
+			$i = $i+1
+		UNTIL $i>$incs
+	ELSE
+		$sq_step = ($max*$max-$min*$min)/($incs-1)
+		gzlvl1[1] = $min
+		$i=2
+		REPEAT
+			$new_val = ($i-1)*$sq_step+$min*$min
+			$step = sqrt($new_val)
+			format($step,6,0):gzlvl1[$i]
+			$i = $i+1
+		UNTIL $i>$incs
+	ENDIF
+$array=array
+IF $array='' THEN array='gzlvl1' ELSE array=array+',gzlvl1' ENDIF
+	calcdim
+	da
+ENDIF
+time
